@@ -341,6 +341,7 @@ public class ComplexController extends AnnotatedObjectController {
 
         // When curating a predicted complex, the ECO code is updated to reflect the evidence type of the curation.
         // Therefore, if the ECO code is no longer one of the predicted ECO codes, then the complex is no longer predicted.
+        // Since the complex is no longer predicted, but curated, we have to update the source to the user institution.
         if (complex != null && complex.isPredictedComplex() && complex.getEvidenceType() != null) {
             Optional<Xref> ecoCodeXrefOp = complex.getEvidenceType().getIdentifiers().stream()
                     .filter(id -> ModelledInteraction.ECO_MI.equals(id.getDatabase().getMIIdentifier()))
@@ -348,6 +349,7 @@ public class ComplexController extends AnnotatedObjectController {
             if (ecoCodeXrefOp.isPresent()) {
                 if (!PREDICTED_COMPLEX_ECO_CODES.contains(ecoCodeXrefOp.get().getId())) {
                     complex.setPredictedComplex(false);
+                    complex.setSource(userSessionController.getUserInstitution());
                 }
             }
         }
